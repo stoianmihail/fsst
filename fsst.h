@@ -74,7 +74,7 @@ extern "C" {
 #define FSST_ESC 255
 
 /* Data structure needed for compressing strings - use fsst_duplicate() to create thread-local copies. Use fsst_destroy() to free. */
-typedef void* fsst_encoder_t; /* opaque type - it wraps around a rather large (~900KB) C++ object */
+typedef void fsst_encoder_t; /* opaque type - it wraps around a rather large (~900KB) C++ object */
 
 /* Data structure needed for decompressing strings - read-only and thus can be shared between multiple decompressing threads. */
 typedef struct {
