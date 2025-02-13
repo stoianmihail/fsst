@@ -369,6 +369,9 @@ static inline size_t compressSIMD(SymbolTable &symbolTable, u8* symbolBase, size
          } 
       } while (curLine == prevLine && outOff <= (1<<19));
    }
+   if (batchPos != 0) {
+      return jobLine[0];
+   }
    return curLine;
 }
 
