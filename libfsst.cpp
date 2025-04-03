@@ -552,11 +552,7 @@ extern "C" u32 fsst_export(fsst_encoder_t *encoder, u8 *buf) {
 
 #define FSST_CORRUPT 32774747032022883 /* 7-byte number in little endian containing "corrupt" */
 
-<<<<<<< HEAD
 extern "C" u32 fsst_import(fsst_decoder_t *decoder, const u8 *buf) {
-=======
-extern "C" u32 fsst_import(fsst_decoder_t *decoder, u8 const *buf) {
->>>>>>> upstream/master
    u64 version = 0;
    u32 code, pos = 17;
    u8 lenHisto[8];
