@@ -106,8 +106,8 @@ class FSSTCompressionRunner : public CompressionRunner {
       auto firstTime = std::chrono::steady_clock::now();
       vector<unsigned long> dummy;
       if (getenv("LOOP"))
-         for (int i = 0; i < 10000; i++) fsst_destroy(fsst_create(data.size(), rowLens.data(), rowPtrs.data(), false));
-      auto encoder = fsst_create(data.size(), rowLens.data(), rowPtrs.data(), false);
+         for (int i = 0; i < 10000; i++) fsst_destroy(fsst_create(data.size(), rowLens.data(), const_cast<const unsigned char**>(rowPtrs.data()), false));
+      auto encoder = fsst_create(data.size(), rowLens.data(), const_cast<const unsigned char**>(rowPtrs.data()), false);
       auto createTime = std::chrono::steady_clock::now();
       vector<unsigned char> compressionBuffer, fullBuffer;
       fullBuffer.resize(totalLen);
@@ -119,9 +119,10 @@ class FSSTCompressionRunner : public CompressionRunner {
       }
       compressionBuffer.resize(16 + 2 * totalLen);
       auto copyTime = std::chrono::steady_clock::now();
-      fsst_compress(encoder, 1, &totalLen, &fullBuf, compressionBuffer.size(), compressionBuffer.data(), compressedRowLens.data(), compressedRowPtrs.data());
+      const unsigned char* fullBufPtr = fullBuf;
+      fsst_compress(encoder, 1, &totalLen, &fullBufPtr, compressionBuffer.size(), compressionBuffer.data(), compressedRowLens.data(), compressedRowPtrs.data());
       auto startTime = std::chrono::steady_clock::now();
-      fsst_compress(encoder, data.size(), rowLens.data(), rowPtrs.data(), compressionBuffer.size(), compressionBuffer.data(), compressedRowLens.data(), compressedRowPtrs.data());
+      fsst_compress(encoder, data.size(), rowLens.data(), const_cast<const unsigned char**>(rowPtrs.data()), compressionBuffer.size(), compressionBuffer.data(), compressedRowLens.data(), compressedRowPtrs.data());
       auto stopTime = std::chrono::steady_clock::now();
       unsigned long compressedLen = data.empty() ? 0 : (compressedRowPtrs[data.size() - 1] + compressedRowLens[data.size() - 1] - compressionBuffer.data());
 
@@ -306,6 +307,7 @@ static pair<bool, vector<pair<unsigned, double>>> doTest(CompressionRunner& runn
    map<unsigned, vector<pair<double, unsigned>>> timings;
    constexpr unsigned repeat = 100;
    for (auto& file : files) {
+      std::cerr << "file=" << file << std::endl;
       // Read the corpus
       vector<string> corpus;
       uint64_t corpusLen = 0;
@@ -479,6 +481,7 @@ int main(int argc, const char* argv[]) {
       NoCompressionRunner runner;
       return !doTest(runner, files, true).first;
    } else if (method == "fsst") {
+      std::cerr << "here" << std::endl;
       FSSTCompressionRunner runner;
       return !doTest(runner, files, true).first;
    } else if (method == "lz4") {
@@ -504,6 +507,10 @@ int main(int argc, const char* argv[]) {
       cout << "sel\tlz4\tfsst" << endl;
       for (unsigned index = 0; index != r1.size(); ++index)
          cout << r1[index].first << "\t" << r1[index].second << "\t" << r2[index].second << endl;
+
+   } else if (method == "like") {
+      auto r2 = cmpFilter<FSSTCompressionRunner>(blockSize, files);
+      
    } else {
       cerr << "unknown method " << method << endl;
       return 1;

@@ -19,7 +19,7 @@ hcw-opt: hcw.cpp ../libfsst.a
 	g++ -std=c++14 -W -Wall -ohcw-opt $(OPT) -g hcw.cpp -I.. -L.. -lfsst
 
 filtertest: filtertest.cpp ../libfsst.a
-	g++ -std=c++14 -W -Wall -ofiltertest -g $(OPT) filtertest.cpp -llz4 -I.. -L.. -lfsst 
+	g++ -std=c++20 -W -Wall -ofiltertest -g $(OPT) filtertest.cpp -llz4 -I.. -L.. -lfsst 
 
 linetest: linetest.cpp ../libfsst.a
 	#g++ -std=c++14 -W -Wall -olinetest -Izstd -Lzstd -g $(OPT) linetest.cpp -llz4 -l:libzstd.so.1 -I.. -L.. -lfsst
